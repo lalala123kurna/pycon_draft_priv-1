@@ -1,6 +1,7 @@
 import numpy
 import matplotlib.pyplot as plt
 import matplotlib.animation as anm                                       
+import math as mt
 
 def advection_1d(x_i, v, dt):
     return x_i + v * dt
@@ -14,18 +15,21 @@ def collision_1d(v1_i, v2_i, m1=1, m2=1):
 
 def simulation_step(dt, x1_0, x2_0, v1_0, v2_0, domain_x):
     """ returns positions and velocity  of the particles after one step"""
-    # TODO - assuming particle radius = .3
-    r1 = .3
-    r2 = .3
+
+    # radius
+    r1 = r2 = .3
+
+    # positions
     x1 = x1_0
     x2 = x2_0
+
+    # velocities
     v1 = v1_0
     v2 = v2_0
 
     # do collision between 2 particles
-    x1_i, x2_i = x1, x2
-    x1 = advection_1d(x1_i, dt, v1)
-    x2 = advection_1d(x2_i, dt, v2)
+    x1 = advection_1d(x1, dt, v1)
+    x2 = advection_1d(x2, dt, v2)
     if abs(x1 - x2) < (r1 + r2):
         v1, v2 = collision_1d(v1, v2)
 
@@ -42,36 +46,52 @@ def simulation_step(dt, x1_0, x2_0, v1_0, v2_0, domain_x):
     return [x1, x2], [v1, v2]
 
 
+class Movie:
+    """ Movie class
 
-# generate animation  -----> move to be optional part of the test?
+        __init__ input:
+            - dt       : simulation timestep
+            - t_max    : maximum simulation time
+            - loc      : array with balls positions
+            - vel      : array with balls velocities
+            - domain_x : domain extent
 
-# global simulation parameters (should we switch to class?)
-fps=30.
-n_max=400
-dt=1/30.
-loc=[1, 5]
-vel=[1, -1]
-domain_x=[0,10]
+        methods:
+            - generate frame() : create a single animation frame
+            - animate(name)    : create the animation; name is the string with file name for the animation
+    """
 
-# plotting
-fig = plt.figure()
-fig.subplots_adjust(left=0, bottom=0, right=1, top=1)
+    def __init__(self, dt, t_max, loc, vel, domain_x, ms=30):
 
-ax = fig.add_subplot(111, aspect='equal', autoscale_on=False,xlim=(domain_x), ylim=(0,1))
-plot_particles, = ax.plot([], [], 'bo')
+        self.dt = dt
+        self.fps = int(mt.floor(1/dt))
+        self.t_max = t_max
+        self.n_max = int(mt.floor(t_max / dt))
+        self.loc = loc
+        self.vel = vel
+        self.domain_x = domain_x
+        self.ms = ms
 
-frame = plt.Rectangle([0,0], domain_x[1] - domain_x[0], 1, fc='none')
-ax.add_patch(frame)
+        self.fig = plt.figure()
+        self.fig.subplots_adjust(left=0, bottom=0, right=1, top=1)
 
-def generate_frame(i):
-    global plot_particles, frame, dt, loc, vel, domain_x
-    loc, vel = simulation_step(dt, loc[0], loc[1], vel[0], vel[1], domain_x)
-    plot_particles.set_data(loc, .5)
-    plot_particles.set_markersize(30) # TODO - set size properly
-    return plot_particles, frame
+        self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=False,xlim=(domain_x), ylim=(0,2))
+        self.plot_particles, = self.ax.plot([], [], 'bo')
 
-# do animation and run the simulation
-animation = anm.FuncAnimation(fig, generate_frame, frames=n_max, interval=10, blit=True)
+        self.frame = plt.Rectangle([0,0], domain_x[1] - domain_x[0], 1, fc='none')
+        self.ax.add_patch(self.frame)
 
-# save animation
-animation.save('1d_dorota_example.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+    def generate_frame(self, i):
+        self.loc, self.vel = simulation_step(self.dt, self.loc[0], self.loc[1], self.vel[0], self.vel[1], self.domain_x)
+        self.plot_particles.set_data(self.loc, 1)
+        self.plot_particles.set_markersize(self.ms)
+        return self.plot_particles, self.frame
+
+    def animate(self, name):
+        animation = anm.FuncAnimation(self.fig, self.generate_frame, frames=self.n_max, interval=10, blit=True)
+
+        fps = self.fps
+        animation.save(name+'.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
+
+movie = Movie(1/30., 10, [1, 5], [1, -1], [0, 10])
+movie.animate("test2")
