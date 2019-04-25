@@ -2,7 +2,7 @@ import numpy
 import matplotlib.pyplot as plt
 import matplotlib.animation as anm                                       
 
-def advection_1d(x_i, v, dt=1):
+def advection_1d(x_i, v, dt):
     return x_i + v * dt
 
 
@@ -14,7 +14,7 @@ def collision_1d(v1_i, v2_i, m1=1, m2=1):
 
 def simulation_step(dt, x1_0, x2_0, v1_0, v2_0, domain_x):
     """ returns positions and velocity  of the particles after one step"""
-    # TODO - assuming particle radius = 1
+    # TODO - assuming particle radius = .3
     r1 = .3
     r2 = .3
     x1 = x1_0
@@ -26,7 +26,7 @@ def simulation_step(dt, x1_0, x2_0, v1_0, v2_0, domain_x):
     x1_i, x2_i = x1, x2
     x1 = advection_1d(x1_i, dt, v1)
     x2 = advection_1d(x2_i, dt, v2)
-    if abs(x1-x2) < (r1 + r2):
+    if abs(x1 - x2) < (r1 + r2):
         v1, v2 = collision_1d(v1, v2)
 
     #boundary condition        
@@ -40,6 +40,10 @@ def simulation_step(dt, x1_0, x2_0, v1_0, v2_0, domain_x):
         v2 *= -1
 
     return [x1, x2], [v1, v2]
+
+
+
+# generate animation  -----> move to be optional part of the test?
 
 # global simulation parameters (should we switch to class?)
 fps=30.
