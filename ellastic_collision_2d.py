@@ -18,6 +18,9 @@ def collision_1d(v1_i, v2_i, m1=1, m2=1):
 def collision_2d(v1, v2, dist, m1, m2):
     n_vect = dist / np.linalg.norm(dist)
 
+    print(dist)
+    print(n_vect)
+
     # scalars
     v1n = np.dot(v1, n_vect)
     v2n = np.dot(v2, n_vect)

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as anm                                       
 import math as mt
 import pdb
-
+from scipy.spatial.distance import pdist, squareform
 
 def advection_1d(x_i, v, dt=1):
     return x_i + v * dt
@@ -37,19 +37,29 @@ def collision_2d(v1, v2, dist, m1, m2):
 def simulation_step(dt, mass, radius, loc, vel, domain):
     """ returns positions and velocities of particles after one step"""
 
+    # TODO - can we do better than this?
+    loc_x = np.copy(loc)
+    loc_y = np.copy(loc)
+    loc_x[:,1] = 1
+    loc_y[:,0] = 1
+
     # find pairs of particles undergoing a collision
-    dist = squareform(pdist(loc))
-    ind1, ind2 = np.where(D < 2 * radius)
+    dist   = squareform(pdist(loc))
+    dist_x = squareform(pdist(loc_x))
+    dist_y = squareform(pdist(loc_y))
+
+    ind1, ind2 = np.where(dist < 2 * radius)
     unique = (ind1 < ind2)
     ind1 = ind1[unique]
     ind2 = ind2[unique]
 
     # collisions
     for id1, id2 in zip(ind1, ind2):
-        vel[id1], vel[id2] = collision_2d(vel[id1], vel[id2], dist[id1,id2], mass[id1], mass[id2])
+        vel[id1], vel[id2] = collision_2d(vel[id1], vel[id2], [dist_x[id1,id2], dist_y[id1,id2]], mass[id1], mass[id2])
 
     # advection
-    loc = advection_1d(x_i=loc, v=vel, dt=dt)
+    loc[:,0] = advection_1d(x_i=loc[:,0], v=vel[:,0], dt=dt)
+    loc[:,1] = advection_1d(x_i=loc[:,1], v=vel[:,1], dt=dt)
 
     # find outside domain points ...
     out_left   = (loc[:, 0] < domain[0][0] + radius)
@@ -86,8 +96,9 @@ class Movie_2d:
         self.fig.subplots_adjust(left=0, bottom=0.1, right=1, top=.9)             
 
         self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(domain[0]), ylim=domain[1])
-        self.circ = plt.Circle(self.loc, self.radius, color='r', fill=False, linewidth=2)
-        self.ax.add_patch(self.circ)
+        for el in range(loc.shape[0]):
+            self.circ = plt.Circle(self.loc[el,:], self.radius, color='r', fill=False, linewidth=2)
+            self.ax.add_patch(self.circ)
 
         self.frame = plt.Rectangle([0,0], domain[0][1] - domain[0][0], domain[1][1] - domain[1][0], fc='none')
         self.ax.add_patch(self.frame)        
@@ -96,7 +107,8 @@ class Movie_2d:
  
         loc, vel = simulation_step(self.dt, self.mass, self.radius,
                                    self.loc, self.vel, self.domain)
-        self.circ.set_center(self.loc)
+        for el in range(loc.shape[0]):
+            self.circ.set_center(self.loc[el,:])
         return self.circ, self.frame
 
     def animate(self, name):                                                   
@@ -107,14 +119,29 @@ class Movie_2d:
 
 
 # initial values and constants
-loc = np.array([30., 50.] [30 + (1200) ** 0.5, 50. + 20])
-vel = np.array([12., 12.] [-8, -15.])
-domain = [[0, 100] [0, 100]]
-mass = [1, 2]
+vel = np.array([[12., 12.], [-8, -15.]])
+loc = np.array([[30., 50.], [30 + (1200) ** 0.5, 50. + 20]])
+domain = np.array([[0., 100.], [0., 100.]])
+mass = np.array([1., 2.])
 dt = 1/30.
 t_max = 1#50
 radius = 10
  
 movie = Movie_2d(dt=dt, t_max=t_max, loc=loc,
                  vel=vel, domain=domain, mass=mass, radius=radius)
-movie.animate("test_2d_many")   
+movie.animate("test_2d_2_balls")   
+
+
+# initial values and constants
+vel = np.array([[12., 12.], [-8, -15.], [-3, 4]])
+loc = np.array([[30., 50.], [30 + (1200) ** 0.5, 50. + 20], [75, 75]])
+domain = np.array([[0., 100.], [0., 100.]])
+mass = np.array([1., 2., 1.])
+dt = 1/30.
+t_max = 50
+radius = 10
+ 
+movie = Movie_2d(dt=dt, t_max=t_max, loc=loc,
+                 vel=vel, domain=domain, mass=mass, radius=radius)
+movie.animate("test_2d_3_balls")   
+
