@@ -24,11 +24,11 @@ def test_collision_3():
     v1_f, v2_f = ec_1d.collision_1d(v1_i=1, v2_i=-2, m1=1, m2=1e6)
     assert v2_f == pytest.approx(-2, rel=1e-3)
 
-
-def test_simulation():
+@pytest.mark.parametrize("dt", [1, 0.01])
+def test_simulation_1(dt):
     # initial condition and simulation parameters
     domain_x = [-2,12]
-    dt = 1
+    dt = dt
     t_max = 5
     t = 0
     loc_0 = [0, 10]
@@ -37,7 +37,7 @@ def test_simulation():
 
     # create movie
     movie = ec_1d.Movie(dt, t_max - dt, loc_0, vel_0, domain_x, radius)                             
-    movie.animate("pytest_movie_1") 
+    movie.animate("pytest_movie_dt_"+str(dt)) 
 
     # run the simulation
     loc = loc_0
@@ -47,7 +47,8 @@ def test_simulation():
         t += dt
 
     # test location and velocities after colision
-    #assert (loc[0], loc[1]) == (5, 5)
+    if dt == 1:
+        assert (loc[0], loc[1]) == (5, 5)
     assert vel[0] == -1
     assert vel[1] == 1
 
