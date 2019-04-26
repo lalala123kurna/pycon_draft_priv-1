@@ -49,13 +49,16 @@ def simulation_step(dt, m1, m2, radius, loc1_0, loc2_0, v1_0, v2_0, domain):
     v1 = v1_0
     v2 = v2_0
 
-
-    # changed the order, previous order didn't work, when the collison
-    # should happen in the first step
+    # collisions
     if np.linalg.norm(dist) < (r1 + r2):
         v1, v2 = collision_2d(v1, v2, dist, m1, m2)
 
-    #boundary condition
+    # advection
+    for i in [0, 1]:
+        loc1[i] = advection_1d(x_i=loc1[i], v=v1[i], dt=dt)
+        loc2[i] = advection_1d(x_i=loc2[i], v=v2[i], dt=dt)
+
+    # boundary condition
     for i in [0, 1]:
         if loc1[i] - r1 < domain[i][0]:
             v1[i] *= -1
@@ -66,17 +69,7 @@ def simulation_step(dt, m1, m2, radius, loc1_0, loc2_0, v1_0, v2_0, domain):
         if loc2[i] + r2 > domain[i][1]:
             v2[i] *= -1
 
-    # do collision between 2 particles
-    for i in [0, 1]:
-        loc1[i] = advection_1d(x_i=loc1[i], v=v1[i], dt=dt)
-        loc2[i] = advection_1d(x_i=loc2[i], v=v2[i], dt=dt)
-
     return [loc1, loc2], [v1, v2]
-
-
-# TODO
-# class Plot_2d:
-#     def __init__(self):
 
 
 class Movie_2d:
@@ -96,7 +89,7 @@ class Movie_2d:
         self.radius = radius
 
         self.fig = plt.figure()                                                
-        self.fig.subplots_adjust(left=0, bottom=0, right=1, top=1)             
+        self.fig.subplots_adjust(left=0, bottom=0.1, right=1, top=.9)             
 
         self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(domain[0]), ylim=domain[1])
         self.c1 = plt.Circle(self.loc1, self.radius, color='r', fill=False, linewidth=2)
@@ -137,8 +130,8 @@ v2 = [-8, -15.]
 domain = [[0, 100], [0, 100]]
 m1 = 1
 m2 = 2
-dt = 1/30
-t_max = 50
+dt = 1/30.
+t_max = 1#50
 radius = 10
 
 movie = Movie_2d(dt=dt, t_max=t_max, loc1=loc1_0, loc2=loc2_0,

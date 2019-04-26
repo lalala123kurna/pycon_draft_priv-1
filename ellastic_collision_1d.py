@@ -73,7 +73,7 @@ class Movie:
         self.radius = radius
 
         self.fig = plt.figure()
-        self.fig.subplots_adjust(left=0, bottom=0, right=1, top=1)
+        self.fig.subplots_adjust(left=0.1, bottom=0, right=.9, top=1)
 
         self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=False,xlim=(domain_x), ylim=(0,3))
         self.c1 = plt.Circle((self.loc[0], 1.5), self.radius, color='r', fill=False, linewidth=2)
