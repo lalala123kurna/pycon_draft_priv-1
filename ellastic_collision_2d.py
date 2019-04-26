@@ -96,7 +96,7 @@ class Movie_2d:
         self.radius = radius
 
         self.fig = plt.figure()                                                
-        self.fig.subplots_adjust(left=0, bottom=0, right=1, top=1)             
+        self.fig.subplots_adjust(left=0, bottom=0.1, right=1, top=.9)             
 
         self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(domain[0]), ylim=domain[1])
         self.c1 = plt.Circle(self.loc1, self.radius, color='r', fill=False, linewidth=2)
@@ -137,8 +137,8 @@ v2 = [-8, -15.]
 domain = [[0, 100], [0, 100]]
 m1 = 1
 m2 = 2
-dt = 1/30
-t_max = 50
+dt = 1/30.
+t_max = 1#50
 radius = 10
 
 movie = Movie_2d(dt=dt, t_max=t_max, loc1=loc1_0, loc2=loc2_0,
