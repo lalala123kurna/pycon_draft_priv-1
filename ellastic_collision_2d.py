@@ -49,13 +49,16 @@ def simulation_step(dt, m1, m2, radius, loc1_0, loc2_0, v1_0, v2_0, domain):
     v1 = v1_0
     v2 = v2_0
 
-
-    # changed the order, previous order didn't work, when the collison
-    # should happen in the first step
+    # collisions
     if np.linalg.norm(dist) < (r1 + r2):
         v1, v2 = collision_2d(v1, v2, dist, m1, m2)
 
-    #boundary condition
+    # advection
+    for i in [0, 1]:
+        loc1[i] = advection_1d(x_i=loc1[i], v=v1[i], dt=dt)
+        loc2[i] = advection_1d(x_i=loc2[i], v=v2[i], dt=dt)
+
+    # boundary condition
     for i in [0, 1]:
         if loc1[i] - r1 < domain[i][0]:
             v1[i] *= -1
@@ -66,17 +69,7 @@ def simulation_step(dt, m1, m2, radius, loc1_0, loc2_0, v1_0, v2_0, domain):
         if loc2[i] + r2 > domain[i][1]:
             v2[i] *= -1
 
-    # do collision between 2 particles
-    for i in [0, 1]:
-        loc1[i] = advection_1d(x_i=loc1[i], v=v1[i], dt=dt)
-        loc2[i] = advection_1d(x_i=loc2[i], v=v2[i], dt=dt)
-
     return [loc1, loc2], [v1, v2]
-
-
-# TODO
-# class Plot_2d:
-#     def __init__(self):
 
 
 class Movie_2d:
