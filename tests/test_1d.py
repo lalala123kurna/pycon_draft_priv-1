@@ -1,57 +1,63 @@
-from .. import ellastic_collision_1d as ec_1d
+#from .. import ellastic_collision_1d as ec_1d
+from .. import collisions as cl
+from .. import ellastic_collision_2d_many as ec
+from .. import movies as mv
+
 import pytest
+import numpy as np
 
-def test_advection_1d_1():
-    x_f = ec_1d.advection_1d(x_i=0, v=2, dt=1)
-    assert x_f == 2
-
-def test_advection_1d_2():
-    x_f = ec_1d.advection_1d(x_i=0, v=2, dt=2)
-    assert x_f == 4
-
-def test_collision_1():
-    v1_f, v2_f = ec_1d.collision_1d(v1_i=1, v2_i=-2)
+def test_collision_1d_1():
+    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2)
     assert v1_f == -2
     assert v2_f == 1
 
-def test_collision_2():
-    v1_f, v2_f = ec_1d.collision_1d(v1_i=1, v2_i=-2, m1=2, m2=2)
+def test_collision_1d_2():
+    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2, m1=2, m2=2)
     assert v1_f == -2
     assert v2_f == 1
 
-def test_collision_3():
-    v1_f, v2_f = ec_1d.collision_1d(v1_i=1, v2_i=-2, m1=1, m2=1e6)
+def test_collision_1d_3():
+    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2, m1=1, m2=1e6)
     assert v2_f == pytest.approx(-2, rel=1e-3)
 
-@pytest.mark.parametrize("dt", [1, 0.01])
-def test_simulation_1(dt):
+@pytest.mark.parametrize("dt", [1])#, 0.01])
+def test_simulation_1d(dt):
     # initial condition and simulation parameters
-    domain_x = [-2,12]
+    domain = ([-2, 12], [0, 3])
     dt = dt
-    t_max = 5
+    t_max = 6
     t = 0
-    loc_0 = [0, 10]
-    vel_0 = [1, -1]
+    loc_0 = np.array([[0, 1.5],[10, 1.5]])
+    vel_0 = np.array([[1, 0], [-1, 0]])
     radius = 1
+    mass = [1, 1]
 
+    loc = np.copy(loc_0)
+    vel = np.copy(vel_0)
     # create movie
-    movie = ec_1d.Movie(dt, t_max - dt, loc_0, vel_0, domain_x, radius)                             
-    movie.animate("pytest_movie_dt_"+str(dt)) 
+    movie = mv.Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)                             
+    movie.animate("pytest_movie_1d_dt_"+str(dt)) 
 
     # run the simulation
-    loc = loc_0
-    vel = vel_0
+    loc = np.copy(loc_0)
+    vel = np.copy(vel_0)
     while(t<t_max):
-        loc, vel = ec_1d.simulation_step(dt, loc[0], loc[1], vel[0], vel[1], domain_x, radius)
+        print("loc", loc)
+        print("vel", vel)
+        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)
+        print("loc", loc)
+        print("vel", vel)
         t += dt
 
     # test location and velocities after colision
     if dt == 1:
-        assert (loc[0], loc[1]) == (5, 5)
-    assert vel[0] == -1
-    assert vel[1] == 1
+        assert (loc[0][0], loc[1][0]) == (5, 5)
+    assert vel[0][0] == -1
+    assert vel[1][0] == 1
 
+@pytest.mark.skip(reason=" todo ")
 def test_energy_concervation():
+
     domain_x = [-2,12]
     dt = 1
     t_max = 5
