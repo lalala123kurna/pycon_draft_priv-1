@@ -1,7 +1,7 @@
 #from .. import ellastic_collision_1d as ec_1d
-from .. import collisions as cl
-from .. import ellastic_collision_2d_many as ec
-from .. import movies as mv
+from pycon import collisions as cl
+from pycon import ellastic_collision_2d_many as ec
+from pycon import movies as mv
 
 import pytest
 import numpy as np
