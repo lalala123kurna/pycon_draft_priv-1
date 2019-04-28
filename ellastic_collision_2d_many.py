@@ -27,7 +27,7 @@ def simulation_step(dt, mass, radius, loc, vel, domain):
 
     # collisions
     for id1, id2 in zip(ind1, ind2):
-        vel[id1], vel[id2] = collision_2d(vel[id1], vel[id2], dist[id1, id2], mass[id1], mass[id2])
+        vel[id1], vel[id2] = collision_2d(vel[id1], vel[id2], r12[id1, id2], mass[id1], mass[id2])
 
     # advection
     loc[:] = loc[:] + vel[:] * dt
