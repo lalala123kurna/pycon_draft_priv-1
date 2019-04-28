@@ -6,8 +6,6 @@ import numpy as np
 
 import pytest
 
-# expect fail: test_simulation_1d with dt=1
-
 #TODO - move energy and momentum to separate file
 def E_kin(vel, mass):
     """ calculate the kinematic energy of all particles """
@@ -165,7 +163,7 @@ def test_simulation_1d_fail():
 
 
 #TODO - bring those up to date
-# but also leav one to show mark.skip
+# but also leave one to show mark.skip
 @pytest.mark.skip(reason=" this will be infinite loop, del_x should be better defined")
 def test_simulation_collision_2():
     x1_f, x2_f, time_f, v1_f, v2_f = \
