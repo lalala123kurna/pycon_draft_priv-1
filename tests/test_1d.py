@@ -1,6 +1,6 @@
-from pycon import collisions as cl
-from pycon import ellastic_collision_2d_many as ec
-from pycon import movies as mv
+from pycontest import collisions as cl
+from pycontest import ellastic_collision_2d_many as ec
+from pycontest import movies as mv
 
 import numpy as np
 
