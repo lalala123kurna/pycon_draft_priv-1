@@ -7,8 +7,8 @@ import math as mt
 import pdb
 from scipy.spatial.distance import pdist, squareform
 
-from pycon.collisions import collision_2d
-import pycon.movies as mv
+from pycontest.collisions import collision_2d
+import pycontest.movies as mv
 
 
 def simulation_step(dt, mass, radius, loc, vel, domain):
