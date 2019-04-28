@@ -41,3 +41,69 @@ class Movie_2d:
 
         fps = self.fps
         animation.save(name + '.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
+
+
+class Plot_2d:
+    """TODO"""
+    def __init__(self, dt, t_max, loc1_0, loc2_0, vel1_0, vel2_0,
+                 domain, radius, m1=1, m2=1, nr=4, nc=5):
+        self.fig = plt.figure()
+        self.nr = nr
+        self.nc = nc
+        self.dt = dt
+        self.t_max = t_max
+        self.loc1_0 = loc1_0
+        self.loc2_0 = loc2_0
+        self.vel1_0 = vel1_0
+        self.vel2_0 = vel2_0
+        self.domain = domain
+        self.radius = radius
+        self.m1 = m1
+        self.m2 = m2
+
+
+    def simulation(self):
+        tt = 0
+        ii = 0
+        loc1, loc2 = self.loc1_0, self.loc2_0
+        vel1, vel2 = self.vel1_0, self.vel2_0
+        while tt <= t_max:
+            [loc1, loc2], [vel1, vel2] = \
+                simulation_step(dt=self.dt, m1=self.m1, m2=self.m2, radius=self.radius,
+                                loc1_0=loc1, loc2_0=loc2, v1_0=vel1, v2_0=vel2,
+                                domain=self.domain)
+            tt += dt
+            if ii % 5 == 0:
+                #pdb.set_trace()
+                self.plotting(ii/5+1, loc1.copy(), loc2.copy(), vel1.copy(), vel2.copy())
+            ii += 1
+        plt.show()
+
+    def plotting(self, ii, loc1, loc2, vel1, vel2):
+        ax = self.fig.add_subplot(self.nr, self.nc, ii, aspect='equal')
+        # ax = plt.gca()
+        # ax.quiver(r1[0], r1[1], r12[0], r12[1], angles='xy', scale_units='xy', scale=1, color="k", width=1.e-3)
+        # ax.quiver(0, 0, r1[0], r1[1], angles='xy', scale_units='xy', scale=1, color="k", width=1.e-3)
+        # ax.quiver(0, 0, r2[0], r2[1], angles='xy', scale_units='xy', scale=1, color="k", width=1.e-3)
+        # ax.quiver(r1[0], r1[1], v1[0], v1[1], angles='xy', scale_units='xy', scale=1, color="g")
+        # ax.quiver(r2[0], r2[1], v2[0], v2[1], angles='xy', scale_units='xy', scale=1, color="g")
+        # ax.quiver(r1[0], r1[1], v1n[0], v1n[1], angles='xy', scale_units='xy', scale=1, color="y")
+        # ax.quiver(r2[0], r2[1], v2n[0], v2n[1], angles='xy', scale_units='xy', scale=1, color="y")
+        # ax.quiver(r1[0], r1[1], v1s[0], v1s[1], angles='xy', scale_units='xy', scale=1, color="y")
+        # ax.quiver(r2[0], r2[1], v2s[0], v2s[1], angles='xy', scale_units='xy', scale=1, color="y")
+        #
+        # ax.quiver(r1[0], r1[1], u1[0], u1[1], angles='xy', scale_units='xy', scale=1, color="b")
+        # ax.quiver(r2[0], r2[1], u2[0], u2[1], angles='xy', scale_units='xy', scale=1, color="b")
+        # ax.quiver(r1[0], r1[1], u1n[0], u1n[1], angles='xy', scale_units='xy', scale=1, color="c")
+        # ax.quiver(r2[0], r2[1], u2n[0], u2n[1], angles='xy', scale_units='xy', scale=1, color="c")
+        # ax.quiver(r1[0], r1[1], u1s[0], u1s[1], angles='xy', scale_units='xy', scale=1, color="c")
+        # ax.quiver(r2[0], r2[1], u2s[0], u2s[1], angles='xy', scale_units='xy', scale=1, color="c")
+
+        # ax.quiver(X, Y, V, U, angles='xy', scale_units='xy', scale=1, color="b")
+        c1 = plt.Circle(loc1, self.radius, color='r', fill=False)
+        c2 = plt.Circle(loc2, self.radius, color='r', fill=False)
+        ax.set_xlim([0, 100])
+        ax.set_ylim([0, 100])
+        # ax.set_aspec("equal")
+        ax.add_patch(c1)
+        ax.add_patch(c2)
