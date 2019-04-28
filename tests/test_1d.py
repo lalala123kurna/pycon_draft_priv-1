@@ -9,7 +9,6 @@ def test_advection_1d_2():
     x_f = ec_1d.advection_1d(x_i=0, v=2, dt=2)
     assert x_f == 4
 
-
 def test_collision_1():
     v1_f, v2_f = ec_1d.collision_1d(v1_i=1, v2_i=-2)
     assert v1_f == -2
@@ -51,6 +50,29 @@ def test_simulation_1(dt):
         assert (loc[0], loc[1]) == (5, 5)
     assert vel[0] == -1
     assert vel[1] == 1
+
+def test_energy_concervation():
+    domain_x = [-2,12]
+    dt = 1
+    t_max = 5
+    t = 0
+    loc_0 = [0, 10]
+    vel_0 = [1, -1]
+    radius = 1
+
+    E_ini = 0.5 * (pow(vel_0[0],2) + pow(vel_0[1],2))
+
+    # run the simulation
+    loc = loc_0
+    vel = vel_0
+    while(t<t_max):
+        loc, vel = ec_1d.simulation_step(dt, loc[0], loc[1], vel[0], vel[1], domain_x, radius)
+        t += dt
+
+    E_fin = 0.5 * (pow(vel[0],2) + pow(vel[1],2))
+
+    assert E_ini == E_fin
+ 
 
 @pytest.mark.skip(reason=" this will be infinite loop, del_x should be better defined")
 def test_simulation_collision_2():
