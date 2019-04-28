@@ -18,7 +18,7 @@ class Movie_2d:
         self.fun = fun
 
         self.fig = plt.figure()
-        self.fig.subplots_adjust(left=0, bottom=0.1, right=1, top=.9)
+        self.fig.subplots_adjust(left=0.1, bottom=0.1, right=.9, top=.9)
 
         self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=False, xlim=(domain[0]), ylim=domain[1])
         for el in range(loc.shape[0]):
