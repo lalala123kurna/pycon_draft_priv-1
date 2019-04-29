@@ -1,13 +1,10 @@
-from pycontest import collisions as cl                                         
 from pycontest import ellastic_collision_2d_many as ec                         
-from pycontest import movies as mv                                             
-
 import numpy as np                                                             
-
 import pytest 
 
 def test_regression():
 
+    # initial condition and simulation params
     vel_0 = np.array([[12., 12.], [-8, -15.], [-3, 4],     [10, 0],    [2., 12.],  [-8, -15.],
                       [3,    -4], [-10, 0],   [-12., 12.], [8, -15.],  [-3, -4],   [-10, 0]])
     loc_0 = np.array([[20., 45.], [65, 70.],  [85., 90.],  [10., 10.], [50., 45.], [15, 70.],
@@ -19,6 +16,7 @@ def test_regression():
     radius = 5
     t=dt
 
+    # reference values
     loc_ref = np.array([[45.08684936, 91.01680413], [55.03873045, 77.89907846],
                         [35.83978766, 82.60457335], [20.01748873, 81.17175372],
                         [ 7.04014445, 30.65715872], [80.2073723 , 50.87462212],
@@ -33,13 +31,17 @@ def test_regression():
                         [-14.516909  ,  -4.37959354], [  0.42514493,   0.76911109],
                         [  0.29948754,   1.27290205], [  5.06255334,   6.26903091]])
 
-
+    # run simulation
     loc = np.copy(loc_0)                                                       
     vel = np.copy(vel_0)                                                       
     while(t<t_max):                                                            
         loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)      
         t += dt                
 
-    print(loc[0] - loc_ref[0])
-    assert(np.isclose(loc[0][0], loc_ref[0][0], atol=1e-20))
-    #assert(np.allclose(vel, vel_ref, atol = 1e-12))
+    # from scipy docs:
+    # The tolerance values are positive, typically very small numbers.
+    # The relative difference (rtol * abs(b)) and the absolute difference atol
+    # are added together to compare against the absolute difference 
+    # between a and b.
+    np.testing.assert_allclose(loc, loc_ref, atol=0, rtol=1e-9, err_msg="for locations")
+    np.testing.assert_allclose(vel, vel_ref, atol=0, rtol=1e-8, err_msg="for velocities")
