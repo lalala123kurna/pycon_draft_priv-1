@@ -5,7 +5,7 @@ import numpy as np
 #import matplotlib.animation as anm                                       
 import math as mt
 #import pdb
-#from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import pdist, squareform
 
 from pycontest.collisions import collision_2d
 import pycontest.movies as mv
