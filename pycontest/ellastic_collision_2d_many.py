@@ -1,10 +1,10 @@
 import numpy as np
-import matplotlib
-matplotlib.use("TkAgg")
-import matplotlib.pyplot as plt
-import matplotlib.animation as anm                                       
+#import matplotlib
+#matplotlib.use("TkAgg")
+#import matplotlib.pyplot as plt
+#import matplotlib.animation as anm                                       
 import math as mt
-import pdb
+#import pdb
 from scipy.spatial.distance import pdist, squareform
 
 from pycontest.collisions import collision_2d
