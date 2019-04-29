@@ -1,15 +1,45 @@
-from .. import ellastic_collision_2d_angle as ec_2d_angle
-from .. import ellastic_collision_2d as ec_2d
+from pycontest import collisions as cl                                         
+from pycontest import ellastic_collision_2d_many as ec                         
+from pycontest import movies as mv                                             
 
-import pytest
+import numpy as np                                                             
 
-#something wrong
-def test_collision_1():
-    v1_f, v2_f, beta = ec_2d_angle.collision_2d_rest(v1_i=1, alpha=0)
-    assert v1_f == 0
-    assert v2_f == 1
+import pytest 
 
-#idea for tests collision_2d
-# - checking for alpha=0
-# - checking for alpha 90
-# - checking alpha's unit
+def test_regression():
+
+    vel_0 = np.array([[12., 12.], [-8, -15.], [-3, 4],     [10, 0],    [2., 12.],  [-8, -15.],
+                      [3,    -4], [-10, 0],   [-12., 12.], [8, -15.],  [-3, -4],   [-10, 0]])
+    loc_0 = np.array([[20., 45.], [65, 70.],  [85., 90.],  [10., 10.], [50., 45.], [15, 70.],
+                      [15., 90.], [45., 10.], [75., 45.],  [40, 70.],  [45., 90.], [90., 10.]])
+    domain = np.array([[0., 100.], [0., 100.]])
+    mass = np.array([1., 2., 1., 3, 1., 2., 1., 3, 1., 2., 1., 3])
+    dt = 1 / 30.
+    t_max = 30
+    radius = 5
+    t=dt
+
+    loc_ref = np.array([[45.08684936, 91.01680413], [55.03873045, 77.89907846],
+                        [35.83978766, 82.60457335], [20.01748873, 81.17175372],
+                        [ 7.04014445, 30.65715872], [80.2073723 , 50.87462212],
+                        [59.82053928, 44.32842005], [ 8.04620836, 44.14156685],
+                        [31.5298449 , 95.31191695], [ 9.62453512, 61.1300588 ],
+                        [55.30100701,  9.8921577 ], [ 8.44782247, 86.48334328]])
+
+    vel_ref = np.array([[ 18.23726142,  23.13062431], [  2.40950758,   6.53985751],
+                        [  0.806431  ,  -9.92303699], [ -4.93232048,  -0.41164134],
+                        [ -8.58411706,  26.30953988], [ -6.06871703,  13.04029963],
+                        [  3.12367898, -14.5890102 ], [-12.38423597,  -1.33033359],
+                        [-14.516909  ,  -4.37959354], [  0.42514493,   0.76911109],
+                        [  0.29948754,   1.27290205], [  5.06255334,   6.26903091]])
+
+
+    loc = np.copy(loc_0)                                                       
+    vel = np.copy(vel_0)                                                       
+    while(t<t_max):                                                            
+        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)      
+        t += dt                
+
+    print(loc[0] - loc_ref[0])
+    assert(np.isclose(loc[0][0], loc_ref[0][0], atol=1e-20))
+    #assert(np.allclose(vel, vel_ref, atol = 1e-12))
