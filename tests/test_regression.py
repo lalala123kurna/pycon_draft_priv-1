@@ -44,4 +44,4 @@ def test_regression():
     # are added together to compare against the absolute difference 
     # between a and b.
     np.testing.assert_allclose(loc, loc_ref, atol=0, rtol=1e-9, err_msg="for locations")
-    np.testing.assert_allclose(vel, vel_ref, atol=0, rtol=1e-8, err_msg="for velocities")
+    np.testing.assert_allclose(vel, vel_ref, atol=0, rtol=1e-7, err_msg="for velocities")
