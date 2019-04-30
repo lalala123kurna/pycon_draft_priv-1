@@ -1,4 +1,4 @@
-from pycontest import ellastic_collision_2d_many as ec
+from pycontest import simulation_2d_many as sim2d
 
 import numpy as np
 
@@ -23,7 +23,6 @@ def test_energy_hypothesis(mass1, mass2):
     domain = ([0, 20], [0, 20])
     dt = 0.5
     t_max = 6
-    t = 0
     loc_0 = np.array([[3, 4],[15, 2]])
     vel_0 = np.array([[1, 0.5], [-1, -.25]])
     radius = 1
@@ -32,15 +31,11 @@ def test_energy_hypothesis(mass1, mass2):
     mass = [mass1, mass2]
 
     # run the simulation
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    while(t<t_max):
-        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)
-        t += dt
+    loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
     E_ini = E_kin(vel_0, mass)
     E_end = E_kin(vel, mass)
 
-    print("testing for mass = [", mass1, ",", mass2,"]. E_end = ", E_end)
+    print("testing for mass = {}. E_end = {}".format(mass, E_end))
 
     assert E_ini == E_end

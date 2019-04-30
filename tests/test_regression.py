@@ -1,4 +1,4 @@
-from pycontest import ellastic_collision_2d_many as ec                         
+from pycontest import simulation_2d_many as sim2d
 import numpy as np                                                             
 import pytest 
 
@@ -14,7 +14,6 @@ def test_regression():
     dt = 1 / 30.
     t_max = 30
     radius = 5
-    t=dt
 
     # reference values
     loc_ref = np.array([[45.08684936, 91.01680413], [55.03873045, 77.89907846],
@@ -32,11 +31,7 @@ def test_regression():
                         [  0.29948754,   1.27290205], [  5.06255334,   6.26903091]])
 
     # run simulation
-    loc = np.copy(loc_0)                                                       
-    vel = np.copy(vel_0)                                                       
-    while(t<t_max):                                                            
-        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)      
-        t += dt                
+    loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain, t0=dt)
 
     # from scipy docs:
     # The tolerance values are positive, typically very small numbers.

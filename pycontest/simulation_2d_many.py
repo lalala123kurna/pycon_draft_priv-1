@@ -1,13 +1,9 @@
 import numpy as np
-#import matplotlib
-#matplotlib.use("TkAgg")
-#import matplotlib.pyplot as plt
-#import matplotlib.animation as anm                                       
 import math as mt
-#import pdb
+
 from scipy.spatial.distance import pdist, squareform
 
-from pycontest.collisions import collision_2d
+from pycontest import elastic_collisions as ec
 import pycontest.movies as mv
 
 
@@ -29,7 +25,7 @@ def simulation_step(dt, mass, radius, loc, vel, domain):
 
     # collisions
     for id1, id2 in zip(ind1, ind2):
-        vel[id1], vel[id2] = collision_2d(vel[id1], vel[id2], r12[id1, id2], mass[id1], mass[id2])
+        vel[id1], vel[id2] = ec.collision_2d(vel[id1], vel[id2], r12[id1, id2], mass[id1], mass[id2])
 
     # advection
     loc[:] = loc[:] + vel[:] * dt
@@ -47,9 +43,9 @@ def simulation_step(dt, mass, radius, loc, vel, domain):
     return loc, vel
 
 
-def simulation(t_max, dt, mass, radius, loc_0, vel_0, domain):
+def simulation(t_max, dt, mass, radius, loc_0, vel_0, domain, t0=0):
     # run the simulation
-    t = 0
+    t = t0
     loc = np.copy(loc_0)
     vel = np.copy(vel_0)
     while(t<t_max):

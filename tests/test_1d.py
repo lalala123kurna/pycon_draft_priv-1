@@ -1,5 +1,5 @@
-from pycontest import collisions as cl
-from pycontest import ellastic_collision_2d_many as ec
+from pycontest import elastic_collisions as ec
+from pycontest import simulation_2d_many as sim2d
 from pycontest.movies import Movie_2d
 from pycontest.utils import momentum, E_kin
 
@@ -9,17 +9,17 @@ import pytest
 
 # simple pytest examples
 def test_collision_1d_1():
-    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2)
+    v1_f, v2_f = ec.collision_1d(v1_i=1, v2_i=-2)
     assert v1_f == -2
     assert v2_f == 1
 
 def test_collision_1d_2():
-    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2, m1=2, m2=2)
+    v1_f, v2_f = ec.collision_1d(v1_i=1, v2_i=-2, m1=2, m2=2)
     assert v1_f == -2
     assert v2_f == 1
 
 def test_collision_1d_3():
-    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2, m1=1, m2=1e6)
+    v1_f, v2_f = ec.collision_1d(v1_i=1, v2_i=-2, m1=1, m2=1e6)
     assert v2_f == pytest.approx(-2, rel=1e-3)
 
 
@@ -35,7 +35,7 @@ def test_simulation_1d(dt):
     radius = 1
     mass = [1, 1]
 
-    loc, vel = ec.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
+    loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
     # test location and velocities after colision
     assert loc[0][0] < 5
@@ -47,7 +47,7 @@ def test_simulation_1d(dt):
     assert (vel[0][1], vel[1][1]) == (vel_0[0][1], vel_0[1][1]) 
 
     # create movie
-    movie = Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
+    movie = Movie_2d(sim2d.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
     movie.animate("pytest_movie_1d_dt_"+str(dt))
 
 
@@ -65,7 +65,7 @@ def data(request):
     radius = 1
     mass = [1, 1]
 
-    loc, vel = ec.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
+    loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
     my_data = {}
     my_data["loc_0"] = loc_0
@@ -113,7 +113,7 @@ def test_simulation_1d_fail():
     radius = 1
     mass = [1, 1]
 
-    loc, vel = simulation(t_max, dt, mass, radius, loc, vel, domain)
+    loc, vel = simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
     # test location and velocities after colision
     assert loc[0][0] < 5
@@ -125,7 +125,7 @@ def test_simulation_1d_fail():
     assert (vel[0][1], vel[1][1]) == (vel_0[0][1], vel_0[1][1]) 
 
     # create movie
-    movie = Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
+    movie = Movie_2d(sim2d.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
     movie.animate("pytest_movie_1d_dt_fail")
 
 
