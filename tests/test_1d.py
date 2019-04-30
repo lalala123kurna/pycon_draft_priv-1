@@ -100,34 +100,20 @@ def test_momentum(data):
 
     assert np.all(p_ini == p_end)
 
-# TODO
-#mark xfail to have tests passing when they fail
-@pytest.mark.xfail(reason=" TODO: balls end up in exactly the same location")
+
 def test_simulation_1d_fail():
     # initial condition and simulation parameters
     domain = ([-2, 12], [0, 3])
-    dt = 1
-    t_max = 6
+    dt = 1.
+    t_max = 12
     loc_0 = np.array([[0, 1.5],[10, 1.5]])
     vel_0 = np.array([[1, 0], [-1, 0]])
     radius = 1
     mass = [1, 1]
 
-    loc, vel = simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
-
-    # test location and velocities after colision
-    assert loc[0][0] < 5
-    assert loc[1][0] > 5
-    assert (loc[0][1], loc[1][1]) == (loc_0[0][1], loc_0[1][1]) 
-
-    assert vel[0][0] == -1
-    assert vel[1][0] == 1
-    assert (vel[0][1], vel[1][1]) == (vel_0[0][1], vel_0[1][1]) 
-
-    # create movie
-    movie = Movie_2d(sim2d.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
-    movie.animate("pytest_movie_1d_dt_fail")
-
+    with pytest.raises(Exception) as excinfo:
+        loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
+    assert "two balls are exactly in the same place" in str(excinfo.value)
 
 
 #TODO - bring those up to date
