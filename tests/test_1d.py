@@ -1,38 +1,25 @@
-from pycontest import collisions as cl
-from pycontest import ellastic_collision_2d_many as ec
-from pycontest import movies as mv
+from pycontest import elastic_collisions as ec
+from pycontest import simulation_2d_many as sim2d
+from pycontest.movies import Movie_2d
+from pycontest.utils import momentum, E_kin
 
 import numpy as np
-
 import pytest
-
-#TODO - move energy and momentum to separate file
-def E_kin(vel, mass):
-    """ calculate the kinematic energy of all particles """
-    vel = np.array(vel)
-    mass = np.array(mass)
-    return 0.5 * np.sum(mass * vel**2)
-
-def momentum(vel, mass):
-    """ calculate the momentum of all particles """
-    vel = np.array(vel)
-    mass = np.array(mass)
-    return np.sum(mass * vel, axis=0)
 
 
 # simple pytest examples
 def test_collision_1d_1():
-    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2)
+    v1_f, v2_f = ec.collision_1d(v1_i=1, v2_i=-2)
     assert v1_f == -2
     assert v2_f == 1
 
 def test_collision_1d_2():
-    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2, m1=2, m2=2)
+    v1_f, v2_f = ec.collision_1d(v1_i=1, v2_i=-2, m1=2, m2=2)
     assert v1_f == -2
     assert v2_f == 1
 
 def test_collision_1d_3():
-    v1_f, v2_f = cl.collision_1d(v1_i=1, v2_i=-2, m1=1, m2=1e6)
+    v1_f, v2_f = ec.collision_1d(v1_i=1, v2_i=-2, m1=1, m2=1e6)
     assert v2_f == pytest.approx(-2, rel=1e-3)
 
 
@@ -43,24 +30,16 @@ def test_simulation_1d(dt):
     domain = ([-2, 12], [0, 3])
     dt = dt
     t_max = 6
-    t = 0
     loc_0 = np.array([[0, 1.5],[10, 1.5]])
     vel_0 = np.array([[1, 0], [-1, 0]])
     radius = 1
     mass = [1, 1]
 
-    # create movie
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    movie = mv.Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)                             
-    movie.animate("pytest_movie_1d_dt_"+str(dt)) 
+    loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
-    # run the simulation
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    while(t<t_max):
-        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)
-        t += dt
+    # create movie
+    movie = Movie_2d(sim2d.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
+    movie.animate("pytest_movie_1d_dt_"+str(dt))
 
     # test location and velocities after colision
     assert loc[0][0] < 5
@@ -81,18 +60,12 @@ def data(request):
     domain = ([-2, 12], [0, 3])
     dt = 0.5
     t_max = 6
-    t = 0
     loc_0 = np.array([[0, 1.5],[10, 1.5]])
     vel_0 = np.array([[1, 0], [-1, 0]])
     radius = 1
     mass = [1, 1]
 
-    # run the simulation
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    while(t<t_max):
-        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)
-        t += dt
+    loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
     my_data = {}
     my_data["loc_0"] = loc_0
@@ -108,6 +81,7 @@ def data(request):
     request.addfinalizer(data_cleanup)                                  
     return my_data
 
+# TODO dodac dluzszy czas
 def test_energy(data):
 
     print("\n test energy")
@@ -126,40 +100,20 @@ def test_momentum(data):
 
     assert np.all(p_ini == p_end)
 
-#mark xfail to have tests passing when they fail
-@pytest.mark.xfail(reason=" balls end up in exactly the same location")
+
 def test_simulation_1d_fail():
     # initial condition and simulation parameters
     domain = ([-2, 12], [0, 3])
-    dt = 1
-    t_max = 6
-    t = 0
+    dt = 1.
+    t_max = 12
     loc_0 = np.array([[0, 1.5],[10, 1.5]])
     vel_0 = np.array([[1, 0], [-1, 0]])
     radius = 1
     mass = [1, 1]
 
-    # create movie
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    movie = mv.Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)                             
-    movie.animate("pytest_movie_1d_dt_fail") 
-
-    # run the simulation
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    while(t<t_max):
-        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)
-        t += dt
-
-    # test location and velocities after colision
-    assert loc[0][0] < 5
-    assert loc[1][0] > 5
-    assert (loc[0][1], loc[1][1]) == (loc_0[0][1], loc_0[1][1]) 
-
-    assert vel[0][0] == -1
-    assert vel[1][0] == 1
-    assert (vel[0][1], vel[1][1]) == (vel_0[0][1], vel_0[1][1]) 
+    with pytest.raises(Exception) as excinfo:
+        loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
+    assert "two balls are exactly in the same place" in str(excinfo.value)
 
 
 #TODO - bring those up to date

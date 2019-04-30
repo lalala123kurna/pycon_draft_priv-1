@@ -2,6 +2,7 @@ import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import matplotlib.animation as anm
+import numpy as np
 import math as mt
 import pdb
 
@@ -12,8 +13,8 @@ class Movie_2d:
         self.dt = dt
         self.fps = int(mt.floor(1 / dt))
         self.n_max = int(mt.floor(t_max / dt))
-        self.loc = loc
-        self.vel = vel
+        self.loc = np.copy(loc)
+        self.vel = np.copy(vel)
         self.domain = domain
         self.mass = mass
         self.radius = radius
@@ -42,8 +43,14 @@ class Movie_2d:
         animation = anm.FuncAnimation(self.fig, self.generate_frame, frames=self.n_max, interval=10, blit=True)
 
         fps = self.fps
-        animation.save(name + '.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
-
+        try:
+            animation.save(name + '.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
+        except ValueError:
+            print("\n mp4 file can not be created, will try to create html")
+            try:
+                animation.save(name + '.html', fps=fps, extra_args=['-vcodec', 'libx264'])
+            except:
+                print("\n html also can not be created")
 
 class Plot_2d:
     """TODO"""
