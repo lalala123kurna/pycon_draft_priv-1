@@ -47,6 +47,17 @@ def simulation_step(dt, mass, radius, loc, vel, domain):
     return loc, vel
 
 
+def simulation(t_max, dt, mass, radius, loc_0, vel_0, domain):
+    # run the simulation
+    t = 0
+    loc = np.copy(loc_0)
+    vel = np.copy(vel_0)
+    while(t<t_max):
+        loc, vel = simulation_step(dt, mass, radius, loc, vel, domain)
+        t += dt
+    return loc, vel
+
+
 if __name__ == '__main__':
 
     # initial values and constants

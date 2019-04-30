@@ -1,23 +1,10 @@
 from pycontest import collisions as cl
 from pycontest import ellastic_collision_2d_many as ec
-from pycontest import movies as mv
+from pycontest.movies import Movie_2d
+from pycontest.utils import momentum, E_kin
 
 import numpy as np
-
 import pytest
-
-#TODO - move energy and momentum to separate file
-def E_kin(vel, mass):
-    """ calculate the kinematic energy of all particles """
-    vel = np.array(vel)
-    mass = np.array(mass)
-    return 0.5 * np.sum(mass * vel**2)
-
-def momentum(vel, mass):
-    """ calculate the momentum of all particles """
-    vel = np.array(vel)
-    mass = np.array(mass)
-    return np.sum(mass * vel, axis=0)
 
 
 # simple pytest examples
@@ -43,24 +30,12 @@ def test_simulation_1d(dt):
     domain = ([-2, 12], [0, 3])
     dt = dt
     t_max = 6
-    t = 0
     loc_0 = np.array([[0, 1.5],[10, 1.5]])
     vel_0 = np.array([[1, 0], [-1, 0]])
     radius = 1
     mass = [1, 1]
 
-    # create movie
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    movie = mv.Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)                             
-    movie.animate("pytest_movie_1d_dt_"+str(dt)) 
-
-    # run the simulation
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    while(t<t_max):
-        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)
-        t += dt
+    loc, vel = ec.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
     # test location and velocities after colision
     assert loc[0][0] < 5
@@ -70,6 +45,10 @@ def test_simulation_1d(dt):
     assert vel[0][0] == -1
     assert vel[1][0] == 1
     assert (vel[0][1], vel[1][1]) == (vel_0[0][1], vel_0[1][1]) 
+
+    # create movie
+    movie = Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
+    movie.animate("pytest_movie_1d_dt_"+str(dt))
 
 
 # module to show how to run simulation once and test many things
@@ -81,18 +60,12 @@ def data(request):
     domain = ([-2, 12], [0, 3])
     dt = 0.5
     t_max = 6
-    t = 0
     loc_0 = np.array([[0, 1.5],[10, 1.5]])
     vel_0 = np.array([[1, 0], [-1, 0]])
     radius = 1
     mass = [1, 1]
 
-    # run the simulation
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    while(t<t_max):
-        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)
-        t += dt
+    loc, vel = ec.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
     my_data = {}
     my_data["loc_0"] = loc_0
@@ -108,6 +81,7 @@ def data(request):
     request.addfinalizer(data_cleanup)                                  
     return my_data
 
+# TODO dodac dluzszy czas
 def test_energy(data):
 
     print("\n test energy")
@@ -126,31 +100,20 @@ def test_momentum(data):
 
     assert np.all(p_ini == p_end)
 
+# TODO
 #mark xfail to have tests passing when they fail
-@pytest.mark.xfail(reason=" balls end up in exactly the same location")
+@pytest.mark.xfail(reason=" TODO: balls end up in exactly the same location")
 def test_simulation_1d_fail():
     # initial condition and simulation parameters
     domain = ([-2, 12], [0, 3])
     dt = 1
     t_max = 6
-    t = 0
     loc_0 = np.array([[0, 1.5],[10, 1.5]])
     vel_0 = np.array([[1, 0], [-1, 0]])
     radius = 1
     mass = [1, 1]
 
-    # create movie
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    movie = mv.Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)                             
-    movie.animate("pytest_movie_1d_dt_fail") 
-
-    # run the simulation
-    loc = np.copy(loc_0)
-    vel = np.copy(vel_0)
-    while(t<t_max):
-        loc, vel = ec.simulation_step(dt, mass, radius, loc, vel, domain)
-        t += dt
+    loc, vel = simulation(t_max, dt, mass, radius, loc, vel, domain)
 
     # test location and velocities after colision
     assert loc[0][0] < 5
@@ -160,6 +123,11 @@ def test_simulation_1d_fail():
     assert vel[0][0] == -1
     assert vel[1][0] == 1
     assert (vel[0][1], vel[1][1]) == (vel_0[0][1], vel_0[1][1]) 
+
+    # create movie
+    movie = Movie_2d(ec.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
+    movie.animate("pytest_movie_1d_dt_fail")
+
 
 
 #TODO - bring those up to date
