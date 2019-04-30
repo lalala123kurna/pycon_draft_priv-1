@@ -42,8 +42,14 @@ class Movie_2d:
         animation = anm.FuncAnimation(self.fig, self.generate_frame, frames=self.n_max, interval=10, blit=True)
 
         fps = self.fps
-        animation.save(name + '.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
-
+        try:
+            animation.save(name + '.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
+        except ValueError:
+            print("\n mp4 file can not be created, will try to create html")
+            try:
+                animation.save(name + '.html', fps=fps, extra_args=['-vcodec', 'libx264'])
+            except:
+                print("\n html also can not be created")
 
 class Plot_2d:
     """TODO"""
