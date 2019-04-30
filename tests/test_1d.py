@@ -37,6 +37,10 @@ def test_simulation_1d(dt):
 
     loc, vel = sim2d.simulation(t_max, dt, mass, radius, loc_0, vel_0, domain)
 
+    # create movie
+    movie = Movie_2d(sim2d.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
+    movie.animate("pytest_movie_1d_dt_"+str(dt))
+
     # test location and velocities after colision
     assert loc[0][0] < 5
     assert loc[1][0] > 5
@@ -45,10 +49,6 @@ def test_simulation_1d(dt):
     assert vel[0][0] == -1
     assert vel[1][0] == 1
     assert (vel[0][1], vel[1][1]) == (vel_0[0][1], vel_0[1][1]) 
-
-    # create movie
-    movie = Movie_2d(sim2d.simulation_step, dt, t_max - dt, loc, vel, domain, mass, radius)
-    movie.animate("pytest_movie_1d_dt_"+str(dt))
 
 
 # module to show how to run simulation once and test many things
