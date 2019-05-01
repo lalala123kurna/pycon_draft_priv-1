@@ -8,7 +8,13 @@ install:
     - pip install numpy
     - pip install hypothesis
     - pip install matplotlib
+    - pip install pytest-cov                                                   
 
 script:
     - py.test -s -v tests/test_regression.py
     - py.test -s -v tests/test_hypothesis.py
+
+    - py.test --cov=./ tests                                                   
+
+after_success:                                                                 
+    - codecov 
